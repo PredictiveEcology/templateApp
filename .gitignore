@@ -31,3 +31,16 @@ vignettes/*.pdf
 # Temporary files created by R markdown
 *.utf8.md
 *.knit.md
+.Rproj.user
+
+# others
+cache/
+inputs/Ecodistricts/
+inputs/Ecoprovinces/
+inputs/Ecoregions/
+inputs/Ecozones/
+inputs/*.checksum
+inputs/demoArea_*.rds
+inputs/*.zip
+outputs/
+packrat/lib*/
