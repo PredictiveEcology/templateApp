@@ -26,28 +26,17 @@ initialMapUI <- function(id) {
 
 initialMap <- function(input, output, session, sim, mapID) {
   output$map_init <- renderPlot({
-    switch(
+    map <- sim$landscape[[mapID]]
+
+    map_title <- switch(
       mapID,
-      "DEM" = {
-        map <- sim$landscape[[mapID]]
-        map_title <- paste0("DEM (", start(sim), ")")
-      },
-      "forestAge" = {
-        map <- sim$landscape[[mapID]]
-        map_title <- paste0("Forest age (", start(sim), ")")
-      },
-      "percentPine" = {
-        map <- sim$landscape[[mapID]]
-        map_title <- paste0("Percent pine (", start(sim), ")")
-      },
-      "habitatQuality" = {
-        map <- sim$landscape[[mapID]]
-        map_title <- paste0("Habitat quality (", start(sim), ")")
-      }
+      "DEM" = paste0("DEM (", start(sim), ")"),
+      "forestAge" = paste0("Forest age (", start(sim), ")"),
+      "percentPine" = paste0("Percent pine (", start(sim), ")"),
+      "habitatQuality" = paste0("Habitat quality (", start(sim), ")")
     )
 
-    clearPlot()
-    Plot(map, title = map_title)
-    Plot(sim$caribou, addTo = map)
+    plot(map, main = map_title)
+    plot(sim$caribou, add = TRUE)
   })
 }
