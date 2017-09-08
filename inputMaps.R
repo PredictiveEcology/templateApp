@@ -25,32 +25,28 @@ sapply(urls_eco, amc::dl.data, dest = paths$inputPath, unzip = TRUE)
 
 ## reproject/crop ecodistricts for studyArea
 message("reprojecting ecodistricts...")
+ecos <- c("ecozones", "ecoprovinces", "ecoregions", "ecodistricts")
+
 ecodistricts <- Cache(shapefile, file.path(paths$inputPath, "Ecodistricts", "ecodistricts"),
                       cacheRepo = paths$cachePath)
-studyAreaEco <- spTransform(studyArea, crs(ecodistricts))
-ecodistrictsStudyRegion <- Cache(crop, ecodistricts, studyAreaEco, cacheRepo = paths$cachePath)
-ecodistricts <- spTransform(ecodistrictsStudyRegion, crs(studyArea))
 
-## reproject/crop ecoregions for studyArea
-message("reprojecting ecoregions...")
-ecoregions <- Cache(shapefile, file.path(paths$inputPath, "Ecoregions", "ecoregions"),
-                    cacheRepo = paths$cachePath)
-ecoregionsStudyRegion <- Cache(crop, ecoregions, studyAreaEco, cacheRepo = paths$cachePath)
-ecoregions <- spTransform(ecoregionsStudyRegion, crs(studyArea))
+allEcos <- function(ecos, ecoCRS, studyArea, cachePath) {
+  studyAreaEco <- spTransform(studyArea, ecoCRS) %>%
+    Cache(cacheRepo = cachePath)
+  ecoOut <- list()
+  for(ec in ecos) {
+    message("reprojecting ",ec," ...")
+    ecoOut[[ec]] <- shapefile(asPath(file.path(paths$inputPath, gsub(ec,pattern="^e", replacement = "E"), ec))) %>%
+      crop(., studyAreaEco) %>%
+      spTransform(., crs(studyArea)) %>%
+      Cache(cacheRepo = cachePath, digestPathContent = TRUE)
+  }
+  return(ecoOut)
+}
 
-## reproject/crop ecoprovinces for studyArea
-message("reprojecting ecoprovinces...")
-ecoprovinces <- Cache(shapefile, file.path(paths$inputPath, "Ecoprovinces", "ecoprovinces"),
-                      cacheRepo = paths$cachePath)
-ecoprovincesStudyRegion <- Cache(crop, ecoprovinces, studyAreaEco, cacheRepo = paths$cachePath)
-ecoprovinces <- spTransform(ecoprovincesStudyRegion, crs(studyArea))
-
-## reproject/crop ecodistricts for studyArea
-message("reprojecting ecozones...")
-ecozones <- Cache(shapefile, file.path(paths$inputPath, "Ecozones", "ecozones"),
-                      cacheRepo = paths$cachePath)
-ecozonesStudyRegion <- Cache(crop, ecozones, studyAreaEco, cacheRepo = paths$cachePath)
-ecozones <- spTransform(ecozonesStudyRegion, crs(studyArea))
+allEco <- allEcos(ecos, crs(ecodistricts), studyArea, cachePath = paths$cachePath) %>%
+  Cache(cacheRepo = paths$cachePath)
+list2env(allEco, .GlobalEnv)
 
 message("reprojections complete!")
 
