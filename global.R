@@ -11,6 +11,10 @@ if (tryCatch(packageVersion("SpaDES.shiny") < "0.1.0", error = function(x) TRUE)
   devtools::install_github("PredictiveEcology/SpaDES.shiny@development")
 }
 
+if (tryCatch(packageVersion("reproducible") < "0.1.3.9002", error = function(x) TRUE)) {
+  devtools::install_github("PredictiveEcology/reproducible@development")
+}
+
 library(shiny)
 library(shinyBS)
 library(shinydashboard)
